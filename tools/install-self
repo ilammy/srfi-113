@@ -1,0 +1,11 @@
+#!/bin/sh
+set -ex
+
+chibi_install_dir=/usr/local/share/chibi
+
+sudo mkdir $chibi_install_dir/srfi/113
+
+sudo install --mode=0644 $(find ./srfi-113/srfi     -maxdepth 1 -type f) $chibi_install_dir/srfi
+sudo install --mode=0644 $(find ./srfi-113/srfi/113 -maxdepth 1 -type f) $chibi_install_dir/srfi/113
+
+sudo chown --recursive root $chibi_install_dir/srfi/113

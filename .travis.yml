@@ -1,0 +1,12 @@
+language: c
+
+before_install:
+  - mkdir -p /tmp/scratch
+
+install:
+  - ./tools/install-chibi
+  - ./tools/install-srfi-114
+  - ./tools/install-self
+
+script:
+  - ./tools/run-all-tests

@@ -568,7 +568,7 @@
 ;; so comparators do not define a comparison procedure.
 
 (define set-comparator
-  (make-comparator #t set=? #f hash))
+  (make-comparator set? set=? #f hash))
 
 (define bag-comparator
-  (make-comparator #t bag=? #f hash))
+  (make-comparator bag? bag=? #f hash))

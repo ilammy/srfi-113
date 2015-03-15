@@ -1499,6 +1499,18 @@
   (test #t (comparator-hash-function? set-comparator))
   (test #t (comparator-hash-function? bag-comparator))
 
+  (test #t (comparator-test-type set-comparator (set integer-comparator)))
+  (test #f (comparator-test-type set-comparator (bag integer-comparator)))
+  (test #f (comparator-test-type set-comparator '(1 2 3)))
+  (test #f (comparator-test-type set-comparator '((1 . 1) (2 . 2))))
+  (test #f (comparator-test-type set-comparator 42))
+
+  (test #t (comparator-test-type bag-comparator (bag integer-comparator)))
+  (test #f (comparator-test-type bag-comparator (set integer-comparator)))
+  (test #f (comparator-test-type bag-comparator '(1 2 3)))
+  (test #f (comparator-test-type bag-comparator '((1 . 1) (2 . 2))))
+  (test #f (comparator-test-type bag-comparator 42))
+
   (test #t (=? set-comparator (set integer-comparator 1 2 3)
                               (set integer-comparator 3 2 1)))
 

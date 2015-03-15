@@ -1,0 +1,15 @@
+#!/bin/sh
+set -ex
+
+cd /tmp/scratch
+git clone --depth 10 --branch master https://github.com/ilammy/srfi-114.git
+cd srfi-114
+
+chibi_install_dir=/usr/local/share/chibi
+
+sudo mkdir $chibi_install_dir/srfi/114
+
+sudo install --mode=0644 $(find ./srfi-114/srfi     -maxdepth 1 -type f) $chibi_install_dir/srfi
+sudo install --mode=0644 $(find ./srfi-114/srfi/114 -maxdepth 1 -type f) $chibi_install_dir/srfi/114
+
+sudo chown --recursive root $chibi_install_dir/srfi/114

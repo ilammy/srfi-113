@@ -24,7 +24,8 @@
           (scheme case-lambda)
           (srfi 60)
           (srfi 69)
-          (srfi 114))
+          (srfi 114)
+          (srfi 114 default-comparator))
 
   (include "113/qmaps.scm"
            "113/qmap-library.scm"

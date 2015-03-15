@@ -578,3 +578,8 @@
 
 (define bag-comparator
   (make-comparator bag? bag=? #f bag-hash))
+
+;; Register these comparators within the default-comparator of SRFI 114
+
+(register-default-comparator! set-comparator)
+(register-default-comparator! bag-comparator)

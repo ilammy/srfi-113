@@ -1716,6 +1716,57 @@
   (test #t (= (comparator-hash bag-comparator bag-of-bags-1)
               (comparator-hash bag-comparator bag-of-bags-2))))
 
+(test-group "Default"
+  (define set1 (set integer-comparator 1 2 3))
+  (define set2 (set integer-comparator 4 5 6))
+  (define set3 (set integer-comparator 3 2 1))
+  (define bag1 (bag integer-comparator 1 2 3 1 2 3))
+  (define bag2 (bag integer-comparator 4 5 6 5 6))
+  (define bag3 (alist->bag integer-comparator '((2 . 2) (3 . 2) (1 . 2))))
+
+  (test #t (comparator-equal? default-comparator set1 set1))
+  (test #f (comparator-equal? default-comparator set1 set2))
+  (test #t (comparator-equal? default-comparator set1 set3))
+  (test #f (comparator-equal? default-comparator set2 set3))
+  (test #t (comparator-equal? default-comparator bag1 bag1))
+  (test #f (comparator-equal? default-comparator bag1 bag2))
+  (test #t (comparator-equal? default-comparator bag1 bag3))
+  (test #f (comparator-equal? default-comparator bag2 bag3))
+
+  (test #t (= (comparator-hash default-comparator set1)
+              (comparator-hash default-comparator set3)))
+  (test #t (= (comparator-hash default-comparator bag1)
+              (comparator-hash default-comparator bag3)))
+
+  (define list1 (list set1 set2))
+  (define list2 (list set1 set3))
+  (define list3 (list set3 set2))
+  (define list4 (list bag1 bag2))
+  (define list5 (list bag1 bag3))
+  (define list6 (list bag3 bag2))
+
+  ; list-comparator uses default-comparator to compare elements
+  (test #f (comparator-equal? list-comparator list1 list2))
+  (test #t (comparator-equal? list-comparator list1 list3))
+  (test #f (comparator-equal? list-comparator list1 list4))
+  (test #f (comparator-equal? list-comparator list1 list5))
+  (test #f (comparator-equal? list-comparator list1 list6))
+  (test #f (comparator-equal? list-comparator list2 list3))
+  (test #f (comparator-equal? list-comparator list2 list4))
+  (test #f (comparator-equal? list-comparator list2 list5))
+  (test #f (comparator-equal? list-comparator list2 list6))
+  (test #f (comparator-equal? list-comparator list3 list4))
+  (test #f (comparator-equal? list-comparator list3 list5))
+  (test #f (comparator-equal? list-comparator list3 list6))
+  (test #f (comparator-equal? list-comparator list4 list5))
+  (test #t (comparator-equal? list-comparator list4 list6))
+  (test #f (comparator-equal? list-comparator list5 list6))
+
+  (test #t (= (comparator-hash default-comparator list1)
+              (comparator-hash default-comparator list3)))
+  (test #t (= (comparator-hash default-comparator list4)
+              (comparator-hash default-comparator list6))))
+
 (test-end)
 
 (test-end)

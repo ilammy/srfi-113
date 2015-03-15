@@ -564,11 +564,17 @@
 
 ;; Comparators ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(define (set-hash set)
+  (qmap-hash (set-qmap set)))
+
+(define (bag-hash bag)
+  (qmap-hash (bag-qmap bag)))
+
 ;; set<=? or bag<=? do not define a partial order on sets and bags
 ;; so comparators do not define a comparison procedure.
 
 (define set-comparator
-  (make-comparator set? set=? #f hash))
+  (make-comparator set? set=? #f set-hash))
 
 (define bag-comparator
-  (make-comparator bag? bag=? #f hash))
+  (make-comparator bag? bag=? #f bag-hash))

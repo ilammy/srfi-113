@@ -22,6 +22,7 @@
 
   (import (scheme base)
           (scheme case-lambda)
+          (srfi 60)
           (srfi 69)
           (srfi 114))
 

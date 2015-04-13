@@ -341,3 +341,21 @@
         (proc element quantity
           (lambda (stop-value) (raise (stop-iteration stop-value))))))
     (finally)))
+
+;! Return qmap's hash value.
+;;
+;; Calculates and returns the hash value. Hash values are guaranteed to be equal
+;; for equal qmaps, and should be not equal for as many non-equal qmaps as it is
+;; possible. Please note that qmaps which had their elements inserted into them
+;; in different order are still considered equal and must have identical hashes.
+;;
+;; \param [in] qmap  A qmap.
+;;
+;; \returns #qmap's hash value as exact non-negative integer.
+(define (qmap-hash qmap)
+  (define initial-value 13)
+  (let ((hash-element (hash-table-hash-function qmap)))
+    (hash-table-fold qmap
+      (lambda (element quantity result)
+        (bitwise-xor result (+ (hash-element element) quantity)))
+      (+ initial-value (hash-table-size qmap)))))

@@ -1499,17 +1499,48 @@
   (test #t (comparator-hash-function? set-comparator))
   (test #t (comparator-hash-function? bag-comparator))
 
+  (test #t (comparator-test-type set-comparator (set integer-comparator)))
+  (test #f (comparator-test-type set-comparator (bag integer-comparator)))
+  (test #f (comparator-test-type set-comparator '(1 2 3)))
+  (test #f (comparator-test-type set-comparator '((1 . 1) (2 . 2))))
+  (test #f (comparator-test-type set-comparator 42))
+
+  (test #t (comparator-test-type bag-comparator (bag integer-comparator)))
+  (test #f (comparator-test-type bag-comparator (set integer-comparator)))
+  (test #f (comparator-test-type bag-comparator '(1 2 3)))
+  (test #f (comparator-test-type bag-comparator '((1 . 1) (2 . 2))))
+  (test #f (comparator-test-type bag-comparator 42))
+
   (test #t (=? set-comparator (set integer-comparator 1 2 3)
                               (set integer-comparator 3 2 1)))
 
   (test #f (=? bag-comparator (bag integer-comparator 1 2 3 3)
-                              (bag integer-comparator 3 2 1)))
+                              (bag integer-comparator 3 2 1))))
+
+(test-group "Basic hashing"
+  (test #t (= (comparator-hash set-comparator (set integer-comparator))
+              (comparator-hash set-comparator (set integer-comparator))))
 
   (test #t (= (comparator-hash set-comparator (set integer-comparator 1 2 3))
               (comparator-hash set-comparator (set integer-comparator 3 2 1 1 1))))
 
+  (test #t (= (comparator-hash set-comparator (set integer-comparator 1 2 3))
+              (comparator-hash set-comparator (set integer-comparator 3 2 1))))
+
+  (test #t (= (comparator-hash set-comparator (set integer-comparator 1 4 2 3))
+              (comparator-hash set-comparator (set integer-comparator 3 2 2 2 1 4))))
+
+  (test #t (= (comparator-hash bag-comparator (bag integer-comparator))
+              (comparator-hash bag-comparator (bag integer-comparator))))
+
   (test #t (= (comparator-hash bag-comparator (bag integer-comparator 1 2 3 1 1))
-              (comparator-hash bag-comparator (bag integer-comparator 3 2 1 1 1)))))
+              (comparator-hash bag-comparator (bag integer-comparator 3 2 1 1 1))))
+
+  (test #t (= (comparator-hash bag-comparator (bag integer-comparator 8 3 4 6 2 3 4 5 4 3 2 5 4 6 7 5 3 2 4))
+              (comparator-hash bag-comparator (alist->bag integer-comparator '((4 . 5) (6 . 2) (2 . 3) (8 . 1) (3 . 4) (5 . 3) (7 . 1))))))
+
+  (test #t (= (comparator-hash bag-comparator (bag integer-comparator -1 -1 0 0 +1 +1))
+              (comparator-hash bag-comparator (bag integer-comparator +1 0 -1 +1 0 -1)))))
 
 (test-group "Compound"
   (define set-of-sets
@@ -1550,6 +1581,191 @@
   (test 1 (bag-element-count bag-of-bags (bag integer-comparator 1 2 3)))
   (test 1 (bag-element-count bag-of-bags (bag integer-comparator 1 2 3 3)))
   (test 0 (bag-element-count bag-of-bags (bag integer-comparator 1 2 3 3 3))))
+
+(test-group "Compound hashing"
+  (test #t (= (comparator-hash set-comparator (set set-comparator))
+              (comparator-hash set-comparator (set set-comparator))))
+
+  (test #t (= (comparator-hash set-comparator (set bag-comparator))
+              (comparator-hash set-comparator (set bag-comparator))))
+
+  (test #t (= (comparator-hash bag-comparator (bag set-comparator))
+              (comparator-hash bag-comparator (bag set-comparator))))
+
+  (test #t (= (comparator-hash bag-comparator (bag bag-comparator))
+              (comparator-hash bag-comparator (bag bag-comparator))))
+
+  (define set-of-sets-1
+    (set set-comparator
+      (set integer-comparator 1 2 3)
+      (set string-comparator "1" "2" "3")
+      (set set-comparator)))
+
+  (define set-of-sets-2
+    (set set-comparator
+      (set string-comparator "1" "2" "3")
+      (set integer-comparator 1 2 3)
+      (set set-comparator)))
+
+  (define set-of-sets-3
+    (set set-comparator
+      (set string-comparator "1" "2" "3")
+      (set integer-comparator 1 2 3)
+      (set set-comparator)
+      (set integer-comparator 1 2 3)
+      (set integer-comparator 1 2 3)
+      (set set-comparator)
+      (set string-comparator "1" "2" "3")))
+
+  (test #t (= (comparator-hash set-comparator set-of-sets-1)
+              (comparator-hash set-comparator set-of-sets-2)
+              (comparator-hash set-comparator set-of-sets-3)))
+
+  (define set-of-bags-1
+    (set bag-comparator
+      (bag integer-comparator 1 2 2 3)
+      (bag integer-comparator 1 2 3)
+      (bag set-comparator
+        (set integer-comparator 1)
+        (set integer-comparator 1)
+      (set integer-comparator 2 2))))
+
+  (define set-of-bags-2
+    (set bag-comparator
+      (bag integer-comparator 3 1 2 2)
+      (bag integer-comparator 1 2 3)
+      (bag set-comparator
+        (set integer-comparator 1)
+        (set integer-comparator 2 2 2 2 2 2 2)
+        (set integer-comparator 1))
+      (bag integer-comparator 3 2 1 2)))
+
+  (define set-of-bags-3
+    (set bag-comparator
+      (bag integer-comparator 1 2 2 3)
+      (alist->bag set-comparator
+        `((,(set integer-comparator 1) . 2)
+          (,(set integer-comparator 2) . 1)))
+      (bag integer-comparator 1 2 3)
+      (bag integer-comparator 3 2 1)
+      (bag integer-comparator 3 1 2)))
+
+  (test #t (= (comparator-hash set-comparator set-of-bags-1)
+              (comparator-hash set-comparator set-of-bags-2)
+              (comparator-hash set-comparator set-of-bags-3)))
+
+  (define bag-of-sets-1
+    (bag set-comparator
+      (set integer-comparator 1 2 3)
+      (set integer-comparator 1 2 3)))
+
+  (define bag-of-sets-2
+    (bag set-comparator
+      (set integer-comparator 1 2 1 2 3 3 3)
+      (set integer-comparator 3 2 1 2 2 2 1)))
+
+  (define bag-of-sets-3
+    (alist->bag set-comparator
+      `((,(set integer-comparator 1 2 3 2 1) . 2))))
+
+  (test #t (= (comparator-hash bag-comparator bag-of-sets-1)
+              (comparator-hash bag-comparator bag-of-sets-2)
+              (comparator-hash bag-comparator bag-of-sets-3)))
+
+  (define bag-of-bags-1
+    (bag bag-comparator
+      (bag integer-comparator 1 2 3)
+      (bag integer-comparator 1 2 3 3)
+      (bag integer-comparator 3 2 1)
+      (bag set-comparator
+        (set integer-comparator 4 5 7 9)
+        (set integer-comparator 5 9 5 5 4 7 7)
+        (set bag-comparator
+          (bag integer-comparator 4 4 4 5 6)
+          (bag integer-comparator 2 2 1)))
+      (bag set-comparator
+        (set integer-comparator 5 5 4 9 5 7)
+        (set integer-comparator 5 4 5 7 9)
+        (set bag-comparator
+          (bag integer-comparator 4 4 4 5 6)
+          (bag integer-comparator 2 2 1)
+          (alist->bag integer-comparator '((4 . 3) (5 . 1) (6 . 1)))))))
+
+  (define bag-of-bags-2
+    (bag bag-comparator
+      (bag integer-comparator 2 3 1)
+      (bag set-comparator
+        (set integer-comparator 4 4 5 7 9 7)
+        (set bag-comparator
+          (bag integer-comparator 4 4 4 5 6)
+          (bag integer-comparator 4 5 4 4 6)
+          (bag integer-comparator 6 4 4 4 5)
+          (alist->bag integer-comparator '((4 . 3) (5 . 1) (6 . 1)))
+          (bag integer-comparator 2 2 1))
+        (set integer-comparator 5 9 5 4 7))
+      (bag integer-comparator 1 2 3)
+      (bag set-comparator
+        (set integer-comparator 5 4 5 7 9)
+        (set bag-comparator
+          (bag integer-comparator 4 4 4 5 6)
+          (bag integer-comparator 2 2 1)
+          (alist->bag integer-comparator '((4 . 3) (5 . 1) (6 . 1))))
+        (set integer-comparator 5 5 4 9 5 7))
+      (bag integer-comparator 1 2 3 3)))
+
+  (test #t (= (comparator-hash bag-comparator bag-of-bags-1)
+              (comparator-hash bag-comparator bag-of-bags-2))))
+
+(test-group "Default"
+  (define set1 (set integer-comparator 1 2 3))
+  (define set2 (set integer-comparator 4 5 6))
+  (define set3 (set integer-comparator 3 2 1))
+  (define bag1 (bag integer-comparator 1 2 3 1 2 3))
+  (define bag2 (bag integer-comparator 4 5 6 5 6))
+  (define bag3 (alist->bag integer-comparator '((2 . 2) (3 . 2) (1 . 2))))
+
+  (test #t (comparator-equal? default-comparator set1 set1))
+  (test #f (comparator-equal? default-comparator set1 set2))
+  (test #t (comparator-equal? default-comparator set1 set3))
+  (test #f (comparator-equal? default-comparator set2 set3))
+  (test #t (comparator-equal? default-comparator bag1 bag1))
+  (test #f (comparator-equal? default-comparator bag1 bag2))
+  (test #t (comparator-equal? default-comparator bag1 bag3))
+  (test #f (comparator-equal? default-comparator bag2 bag3))
+
+  (test #t (= (comparator-hash default-comparator set1)
+              (comparator-hash default-comparator set3)))
+  (test #t (= (comparator-hash default-comparator bag1)
+              (comparator-hash default-comparator bag3)))
+
+  (define list1 (list set1 set2))
+  (define list2 (list set1 set3))
+  (define list3 (list set3 set2))
+  (define list4 (list bag1 bag2))
+  (define list5 (list bag1 bag3))
+  (define list6 (list bag3 bag2))
+
+  ; list-comparator uses default-comparator to compare elements
+  (test #f (comparator-equal? list-comparator list1 list2))
+  (test #t (comparator-equal? list-comparator list1 list3))
+  (test #f (comparator-equal? list-comparator list1 list4))
+  (test #f (comparator-equal? list-comparator list1 list5))
+  (test #f (comparator-equal? list-comparator list1 list6))
+  (test #f (comparator-equal? list-comparator list2 list3))
+  (test #f (comparator-equal? list-comparator list2 list4))
+  (test #f (comparator-equal? list-comparator list2 list5))
+  (test #f (comparator-equal? list-comparator list2 list6))
+  (test #f (comparator-equal? list-comparator list3 list4))
+  (test #f (comparator-equal? list-comparator list3 list5))
+  (test #f (comparator-equal? list-comparator list3 list6))
+  (test #f (comparator-equal? list-comparator list4 list5))
+  (test #t (comparator-equal? list-comparator list4 list6))
+  (test #f (comparator-equal? list-comparator list5 list6))
+
+  (test #t (= (comparator-hash default-comparator list1)
+              (comparator-hash default-comparator list3)))
+  (test #t (= (comparator-hash default-comparator list4)
+              (comparator-hash default-comparator list6))))
 
 (test-end)
 

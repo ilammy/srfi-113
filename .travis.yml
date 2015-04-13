@@ -1,11 +1,13 @@
 language: c
 
+sudo: requires
+
 before_install:
   - mkdir -p /tmp/scratch
 
 install:
   - ./tools/install-chibi
-  - ./tools/install-srfi-114
+  - ./tools/install-dependencies
   - ./tools/install-self
 
 script:

@@ -4,7 +4,7 @@ This is an implementation of [SRFI 113 'Sets and bags'](//srfi.schemers.org/srfi
 
 ## Running
 
-For development I use [Chibi Scheme](//code.google.com/p/chibi-scheme) (the latest build from Mercurial trunk).
+I use [Chibi Scheme](//github.com/ashinn/chibi-scheme) for development (the latest build from Git master).
 
 ## Licensing
 

@@ -1,8 +1,11 @@
 #!/bin/sh
 set -ex
 
+[ -z $CHIBI_FORK ]   && CHIBI_FORK=ashinn/chibi-scheme
+[ -z $CHIBI_BRANCH ] && CHIBI_BRANCH=master
+
 cd /tmp/scratch
-hg clone https://code.google.com/p/chibi-scheme/
+git clone --depth 50 --branch $CHIBI_BRANCH -- https://github.com/$CHIBI_FORK chibi-scheme
 
 cd chibi-scheme
 make -j$(expr $(nproc) + 1)

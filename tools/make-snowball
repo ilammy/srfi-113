@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+
+tar cz srfi-113 > srfi-113.tgz

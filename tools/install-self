@@ -3,4 +3,4 @@ set -ex
 
 ./tools/make-snowball
 
-snow-chibi --ignore-sig install srfi-113.tgz
+snow-chibi --ignore-sig --ignore-digest install srfi-113.tgz

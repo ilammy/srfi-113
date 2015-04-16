@@ -1,12 +1,11 @@
 language: c
 
-sudo: requires
-
 before_install:
   - mkdir -p /tmp/scratch
 
 install:
   - ./tools/install-chibi
+  - source ~/.profile
   - ./tools/install-dependencies
   - ./tools/install-self
 

@@ -1,5 +1,6 @@
 (package
   (name (srfi 113))
+  (version "1.0.0")
   (description "SRFI 113 'Comparators'")
   (homepage "https://github.com/ilammy/srfi-113")
   (authors "ilammy")

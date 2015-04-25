@@ -1,4 +1,4 @@
-# SRFI 113 'Sets and bags'
+# SRFI 113 'Sets and bags' [![Build Status](https://travis-ci.org/ilammy/srfi-113.svg?branch=master)](https://travis-ci.org/ilammy/srfi-113)
 
 This is an implementation of [SRFI 113 'Sets and bags'](//srfi.schemers.org/srfi-113/srfi-113.html) for R7RS-compliant Schemes.
 
